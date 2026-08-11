@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Table {{ table_number }} · Order{% endblock %}
+{% block body_class %}page-customer{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/customer.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="app" class="customer-app" data-table-number="{{ table_number }}">
+  
+  <!-- HEADER                                                        -->
+  <header class="app-header">
+    <div class="app-header__brand">
+      <span class="app-header__mark">&#9670;</span>
+      <span class="app-header__name">DLP-Cuisine</span>
+    </div>
+    <div class="app-header__right">
+      <span class="table-chip">Table {{ table_number }}</span>
+      <button id="cart-toggle" class="cart-button" type="button" aria-label="Open cart">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        <span id="cart-count" class="cart-button__count" hidden>0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- SEAT ENTRY MODAL - first thing every customer sees            -->
+  <!-- ============================================================ -->
+  <div id="seat-modal" class="modal-overlay">
+    <div class="ticket ticket--modal seat-modal">
+      <p class="ticket__eyebrow">Before we start</p>
+      <h1 class="seat-modal__heading">Which seat are you?</h1>
+      <p class="seat-modal__hint">This just helps the kitchen route your order to the right spot.</p>
+      <div id="seat-grid" class="seat-grid"></div>
+      <button id="seat-continue" class="btn btn--primary btn--block" type="button" disabled>
+        Continue to the menu
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MENU VIEW                                                     -->
+  <!-- ============================================================ -->
+  <main id="menu-view" class="menu-view">
+    <div class="search-row">
+      <div class="search-field">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input id="search-input" type="text" placeholder="Search the menu&hellip;" autocomplete="off">
+      </div>
+    </div>
+
+    <nav id="category-rail" class="category-rail" aria-label="Menu categories"></nav>
+
+    <div id="menu-grid" class="menu-grid" aria-live="polite"></div>
+    <p id="menu-empty" class="menu-empty" hidden>Nothing matches that search.</p>
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- CART DRAWER                                                   -->
+  <!-- ============================================================ -->
+  <div id="cart-scrim" class="cart-scrim" hidden></div>
+  <aside id="cart-drawer" class="cart-drawer" aria-label="Your order">
+    <div class="cart-drawer__header">
+      <h2>Your order</h2>
+      <button id="cart-close" class="icon-btn" type="button" aria-label="Close cart">&times;</button>
+    </div>
+
+    <div id="cart-items" class="cart-items"></div>
+    <p id="cart-empty" class="cart-empty">Your ticket is empty. Add something from the menu.</p>
+
+    <div class="cart-drawer__footer">
+      <div class="cart-total-row">
+        <span>Total</span>
+        <span id="cart-total" class="mono">KSh 0</span>
+      </div>
+      <button id="checkout-btn" class="btn btn--primary btn--block" type="button" disabled>
+        Checkout
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================================================ -->
+  <!-- CHECKOUT / PAYMENT MODAL                                      -->
+  <!-- ============================================================ -->
+  <div id="checkout-modal" class="modal-overlay" hidden>
+    <div class="ticket ticket--modal checkout-modal">
+
+      <!-- Step 1: confirm + place order -->
+      <div id="checkout-step-confirm" class="checkout-step">
+        <p class="ticket__eyebrow">Confirm order</p>
+        <h2 class="checkout-heading">Seat {{ '' }}<span id="checkout-seat-number"></span></h2>
+        <div id="checkout-summary" class="checkout-summary"></div>
+        <div class="checkout-total-row">
+          <span>Total due</span>
+          <span id="checkout-total" class="mono">KSh 0</span>
+        </div>
+        <button id="place-order-btn" class="btn btn--primary btn--block" type="button">
+          Place order
+        </button>
+        <button class="btn btn--ghost btn--block checkout-cancel" type="button">Back to menu</button>
+      </div>
+
+      <!-- Step 2: collect phone number -->
+      <div id="checkout-step-pay" class="checkout-step" hidden>
+        <p class="ticket__eyebrow">Order #<span id="pay-order-id" class="mono"></span> placed</p>
+        <h2 class="checkout-heading">Pay with M-Pesa</h2>
+        <p class="checkout-hint">Enter the phone number that will receive the STK push.</p>
+        <label class="field-label" for="phone-input">M-Pesa phone number</label>
+        <input id="phone-input" class="text-input" type="tel" inputmode="numeric" placeholder="07XX XXX XXX">
+        <p id="phone-error" class="field-error" hidden></p>
+        <button id="pay-btn" class="btn btn--primary btn--block" type="button">
+          Send payment request
+        </button>
+        <button class="btn btn--ghost btn--block cancel-order-btn" type="button">Cancel this order</button>
+      </div>
+
+      <!-- Step 3: waiting for STK push result -->
+      <div id="checkout-step-waiting" class="checkout-step" hidden>
+        <div class="spinner" aria-hidden="true"></div>
+        <h2 class="checkout-heading">Check your phone</h2>
+        <p class="checkout-hint">Enter your M-Pesa PIN on the prompt sent to your phone.</p>
+      </div>
+
+      <!-- Step 4: payment failed -->
+      <div id="checkout-step-failed" class="checkout-step" hidden>
+        <p class="ticket__eyebrow ticket__eyebrow--danger">Payment not completed</p>
+        <h2 class="checkout-heading">That payment didn't go through</h2>
+        <p id="payment-fail-reason" class="checkout-hint"></p>
+        <button id="retry-pay-btn" class="btn btn--primary btn--block" type="button">Try again</button>
+        <button class="btn btn--ghost btn--block cancel-order-btn" type="button">Cancel this order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- LIVE ORDER TRACKING VIEW                                      -->
+  <!-- ============================================================ -->
+  <main id="tracking-view" class="tracking-view" hidden>
+    <div class="ticket ticket--tracker">
+      <p class="ticket__eyebrow">Order #<span id="tracker-order-id" class="mono"></span></p>
+      <h1 class="tracker-heading">We've got it from here</h1>
+
+      <ol class="progress-track" id="progress-track">
+        <li class="progress-track__step" data-status="Pending">
+          <span class="progress-track__dot"></span>
+          <span class="progress-track__label">Received</span>
+        </li>
+        <li class="progress-track__step" data-status="Preparing">
+          <span class="progress-track__dot"></span>
+          <span class="progress-track__label">Preparing</span>
+        </li>
+        <li class="progress-track__step" data-status="Ready">
+          <span class="progress-track__dot"></span>
+          <span class="progress-track__label">Ready</span>
+        </li>
+        <li class="progress-track__step" data-status="Completed">
+          <span class="progress-track__dot"></span>
+          <span class="progress-track__label">Completed</span>
+        </li>
+      </ol>
+
+      <div class="ticket-tear"></div>
+
+      <div id="tracker-items" class="checkout-summary"></div>
+      <div class="checkout-total-row">
+        <span>Total paid</span>
+        <span id="tracker-total" class="mono">KSh 0</span>
+      </div>
+
+      <button id="new-order-btn" class="btn btn--ghost btn--block" type="button" hidden>
+        Start a new order
+      </button>
+    </div>
+  </main>
+
+  <!-- Toast notifications -->
+  <div id="toast-container" class="toast-container" aria-live="assertive"></div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/customer.js') }}"></script>
+{% endblock %}

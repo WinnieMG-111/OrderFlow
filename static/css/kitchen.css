@@ -1,0 +1,211 @@
+/* =====================================================================
+   kitchen.css
+   Layout and components specific to the kitchen display system (KDS).
+   Relies on tokens/components defined in style.css.
+   ===================================================================== */
+
+.kds-app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =====================================================================
+   HEADER
+   ===================================================================== */
+.kds-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+.kds-header__brand { display: flex; align-items: center; gap: 8px; }
+.kds-header__right { display: flex; align-items: center; gap: 18px; }
+.kds-clock { font-size: 1.1rem; color: var(--color-text-muted); }
+
+.connection-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+.connection-badge::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-danger);
+}
+.connection-badge--online { color: var(--color-success); border-color: var(--color-success); }
+.connection-badge--online::before { background: var(--color-success); }
+.connection-badge--offline { color: var(--color-danger); border-color: var(--color-danger); }
+.connection-badge--offline::before { background: var(--color-danger); }
+
+/* =====================================================================
+   BOARD (3 columns: New / Preparing / Ready)
+   ===================================================================== */
+.kds-board {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  padding: 20px 24px;
+  min-height: 0;
+}
+
+.kds-column {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+.kds-column__heading {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.kds-column__count {
+  font-family: var(--font-mono);
+  background: var(--color-surface-2);
+  border-radius: 999px;
+  padding: 1px 8px;
+  color: var(--color-text);
+}
+.kds-column__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 4px;
+}
+.kds-column__empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  padding: 30px 10px;
+}
+.kds-column__empty[hidden] { display: none; }
+
+/* =====================================================================
+   TICKET CARD
+   ===================================================================== */
+.kds-ticket {
+  display: flex;
+  align-items: stretch;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  animation: ticket-arrive 0.25s ease;
+}
+@keyframes ticket-arrive {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.kds-ticket__urgency-bar {
+  width: 6px;
+  flex-shrink: 0;
+  background: var(--color-info);
+}
+.kds-ticket--fresh .kds-ticket__urgency-bar { background: var(--color-success); }
+.kds-ticket--aging .kds-ticket__urgency-bar { background: var(--color-warning); }
+.kds-ticket--late .kds-ticket__urgency-bar { background: var(--color-danger); }
+.kds-ticket--late .kds-ticket__timer { color: var(--color-danger); font-weight: 700; }
+
+.kds-ticket__body {
+  flex: 1;
+  padding: 12px 14px;
+  min-width: 0;
+}
+.kds-ticket__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.kds-ticket__order-id { font-weight: 700; font-size: 0.95rem; }
+.kds-ticket__timer { color: var(--color-text-muted); font-size: 0.88rem; }
+
+.kds-ticket__table {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
+.payment-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+.payment-badge--paid {
+  background: rgba(110, 155, 94, 0.18);
+  color: var(--color-success);
+}
+.payment-badge--unpaid {
+  background: transparent;
+  color: var(--color-warning);
+  border: 1px dashed var(--color-warning);
+}
+
+.kds-ticket__items { margin-bottom: 10px; }
+.kds-ticket__items li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.85rem;
+  padding: 3px 0;
+  border-bottom: 1px dashed var(--color-border);
+}
+.kds-ticket__items li:last-child { border-bottom: none; }
+.kds-ticket__items .item-qty {
+  font-family: var(--font-mono);
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.kds-ticket__actions {
+  display: flex;
+  gap: 8px;
+}
+.kds-ticket__actions .btn {
+  padding: 9px 12px;
+  font-size: 0.82rem;
+  flex: 1;
+}
+.btn--danger-text {
+  background: transparent;
+  color: var(--color-danger);
+  border: 1px solid rgba(193, 80, 46, 0.4);
+}
+.btn--danger-text:hover { border-color: var(--color-danger); }
+
+/* =====================================================================
+   RESPONSIVE
+   ===================================================================== */
+@media (max-width: 900px) {
+  .kds-board { grid-template-columns: 1fr; }
+}

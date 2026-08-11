@@ -1,0 +1,271 @@
+/* =====================================================================
+   style.css
+   Shared design tokens + base components used by BOTH the customer app
+   and the kitchen dashboard. Page-specific layout lives in customer.css
+   and kitchen.css respectively.
+   ===================================================================== */
+
+:root {
+  /* --- Color: bistro-at-night palette --- */
+  --color-bg: #17130F;
+  --color-surface: #241D16;
+  --color-surface-2: #2E251B;
+  --color-border: #4A3B29;
+  --color-text: #F3EBDD;
+  --color-text-muted: #A8977E;
+
+  --color-accent: #E7A33E;
+  --color-accent-hover: #F2B65A;
+  --color-accent-text: #1A1409;
+
+  --color-success: #6E9B5E;
+  --color-warning: #D98B3B;
+  --color-danger: #C1502E;
+  --color-info: #6F92AE;
+
+  /* --- Type --- */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Work Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* --- Layout --- */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --shadow-lifted: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+/* --- Reset --- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: var(--font-display); margin: 0; }
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+button { font-family: inherit; }
+input { font-family: inherit; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Guarantee the native `hidden` attribute always wins, even on elements
+   whose component class (e.g. .modal-overlay) sets its own `display`. */
+[hidden] { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* =====================================================================
+   SIGNATURE COMPONENT: the perforated order ticket
+   Used for modals, the tracking card, and (via kitchen.css) tickets.
+   ===================================================================== */
+.ticket {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 28px;
+}
+
+/* Stub notches: two semicircles bitten out of the left/right edges,
+   like a torn ticket stub. */
+.ticket::before,
+.ticket::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: var(--color-bg);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid var(--color-border);
+}
+.ticket::before { left: -12px; }
+.ticket::after { right: -12px; }
+
+.ticket__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 0 0 8px;
+}
+.ticket__eyebrow--danger { color: var(--color-danger); }
+
+/* A dashed "tear here" divider used inside a ticket to separate stub
+   info from the detail body, echoing a real perforated line. */
+.ticket-tear {
+  border-top: 2px dashed var(--color-border);
+  margin: 20px 0;
+}
+
+/* =====================================================================
+   BUTTONS
+   ===================================================================== */
+.btn {
+  appearance: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.05s ease, opacity 0.15s ease;
+}
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn--block { width: 100%; }
+
+.btn--primary {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+}
+.btn--primary:hover:not(:disabled) { background: var(--color-accent-hover); }
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+.btn--ghost:hover:not(:disabled) {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+.icon-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.icon-btn:hover { color: var(--color-text); }
+
+/* =====================================================================
+   FORM FIELDS
+   ===================================================================== */
+.field-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin: 16px 0 6px;
+}
+.text-input {
+  width: 100%;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+.text-input:focus { border-color: var(--color-accent); }
+.field-error {
+  color: var(--color-danger);
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+
+/* =====================================================================
+   MODAL OVERLAY (used by seat entry + checkout)
+   ===================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 5, 0.72);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+.ticket--modal {
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-lifted);
+}
+
+/* =====================================================================
+   SPINNER
+   ===================================================================== */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  margin: 0 auto 20px;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =====================================================================
+   TOASTS
+   ===================================================================== */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 200;
+  width: min(90vw, 380px);
+}
+.toast {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-info);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-lifted);
+  animation: toast-in 0.2s ease;
+}
+.toast--error { border-left-color: var(--color-danger); }
+.toast--success { border-left-color: var(--color-success); }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =====================================================================
+   SHARED HEADER MARK (used by both apps' headers)
+   ===================================================================== */
+.app-header__mark {
+  color: var(--color-accent);
+  font-size: 1.1rem;
+}
+.app-header__name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Kitchen Display{% endblock %}
+{% block body_class %}page-kitchen{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/kitchen.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="kds" class="kds-app">
+
+  <header class="kds-header">
+    <div class="kds-header__brand">
+      <span class="app-header__mark">&#9670;</span>
+      <span class="app-header__name">Kitchen Display</span>
+    </div>
+    <div class="kds-header__right">
+      <span id="connection-badge" class="connection-badge connection-badge--offline">Connecting&hellip;</span>
+      <span id="clock" class="mono kds-clock"></span>
+    </div>
+  </header>
+
+  <main class="kds-board">
+    <section class="kds-column" aria-label="New orders">
+      <h2 class="kds-column__heading">
+        New <span id="count-pending" class="kds-column__count">0</span>
+      </h2>
+      <div id="col-pending" class="kds-column__body"></div>
+      <p class="kds-column__empty" data-empty-for="col-pending">No new orders.</p>
+    </section>
+
+    <section class="kds-column" aria-label="Preparing">
+      <h2 class="kds-column__heading">
+        Preparing <span id="count-preparing" class="kds-column__count">0</span>
+      </h2>
+      <div id="col-preparing" class="kds-column__body"></div>
+      <p class="kds-column__empty" data-empty-for="col-preparing">Nothing on the pass.</p>
+    </section>
+
+    <section class="kds-column" aria-label="Ready for pickup">
+      <h2 class="kds-column__heading">
+        Ready <span id="count-ready" class="kds-column__count">0</span>
+      </h2>
+      <div id="col-ready" class="kds-column__body"></div>
+      <p class="kds-column__empty" data-empty-for="col-ready">Nothing waiting.</p>
+    </section>
+  </main>
+
+  <!-- Ticket card template, cloned per order by kitchen.js -->
+  <template id="ticket-template">
+    <article class="kds-ticket">
+      <div class="kds-ticket__urgency-bar"></div>
+      <div class="kds-ticket__body">
+        <div class="kds-ticket__top">
+          <span class="kds-ticket__order-id mono">#<span data-field="order-id"></span></span>
+          <span class="kds-ticket__timer mono" data-field="timer">00:00</span>
+        </div>
+        <div class="kds-ticket__table">
+          <span data-field="table"></span> &middot; Seat <span data-field="seat"></span>
+        </div>
+        <span class="payment-badge" data-field="payment-badge"></span>
+        <ul class="kds-ticket__items" data-field="items"></ul>
+        <div class="kds-ticket__actions" data-field="actions"></div>
+      </div>
+    </article>
+  </template>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/kitchen.js') }}"></script>
+{% endblock %}

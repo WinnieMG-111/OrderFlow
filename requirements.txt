@@ -1,0 +1,25 @@
+# Core Flask
+Flask>=3.0.3
+Werkzeug>=3.0.3
+
+# Real-time communication
+Flask-SocketIO>=5.3.6
+python-socketio>=5.11.2
+python-engineio>=4.9.0
+eventlet>=0.36.1
+
+# Database
+PyMySQL>=1.1.0
+cryptography>=42.0.5
+
+# HTTP requests (for M-Pesa Daraja API calls)
+requests>=2.31.0
+
+# Environment / configuration management
+python-dotenv>=1.0.1
+
+# Form/data validation and utility
+email-validator>=2.1.1
+
+# Image handling (validating/resizing menu item uploads)
+Pillow>=10.4.0
